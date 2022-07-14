@@ -147,8 +147,17 @@ vector<Declaration const*> DeclarationContainer::resolveName(
 	ResolvingSettings _settings
 ) const
 {
+	updateSettingsBasedOnStdlibPragma(_settings);
+
 	solAssert(!_name.empty(), "Attempt to resolve empty name.");
 	vector<Declaration const*> result;
+
+	if (!_settings.autoPopulateStdlib && m_stdlibIdentifiers && m_stdlibIdentifiers->count(_name))
+	{
+		solAssert(!m_enclosingContainer);
+		return result;
+	}
+
 
 	if (m_declarations.count(_name))
 	{
@@ -210,8 +219,19 @@ void DeclarationContainer::populateHomonyms(back_insert_iterator<Homonyms> _it) 
 		ResolvingSettings settings;
 		settings.recursive = true;
 		settings.alsoInvisible = true;
+		updateSettingsBasedOnStdlibPragma(settings);
 		vector<Declaration const*> const& declarations = m_enclosingContainer->resolveName(name, move(settings));
 		if (!declarations.empty())
 			_it = make_pair(location, declarations);
+	}
+}
+
+void DeclarationContainer::updateSettingsBasedOnStdlibPragma(ResolvingSettings& _settings) const
+{
+	if (auto const* sourceUnit = dynamic_cast<SourceUnit const*>(m_selfNode))
+	{
+		solAssert(sourceUnit->annotation().useStdlib.set());
+		if (*sourceUnit->annotation().useStdlib)
+			_settings.autoPopulateStdlib = false;
 	}
 }
