@@ -98,6 +98,7 @@ string YulInterpreterTest::interpret()
 			state,
 			EVMDialect::strictAssemblyForEVMObjects(langutil::EVMVersion{}),
 			*m_ast,
+			/*enableExternalCalls=*/false,
 			/*disableMemoryTracing=*/false
 		);
 	}
