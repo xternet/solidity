@@ -30,23 +30,24 @@ cleans input data when it is loaded onto the stack.
 
 Different types have different rules for cleaning up invalid values:
 
-+---------------+---------------+-------------------+
-|Type           |Valid Values   |Invalid Values Mean|
-+===============+===============+===================+
-|enum of n      |0 until n - 1  |exception          |
-|members        |               |                   |
-+---------------+---------------+-------------------+
-|bool           |0 or 1         |1                  |
-+---------------+---------------+-------------------+
-|signed integers|sign-extended  |currently silently |
-|               |word           |wraps; in the      |
-|               |               |future exceptions  |
-|               |               |will be thrown     |
-|               |               |                   |
-|               |               |                   |
-+---------------+---------------+-------------------+
-|unsigned       |higher bits    |currently silently |
-|integers       |zeroed         |wraps; in the      |
-|               |               |future exceptions  |
-|               |               |will be thrown     |
-+---------------+---------------+-------------------+
++---------------+---------------+-------------------------+
+|Type           |Valid Values   |Cleanup of Invalid Values|
++===============+===============+=========================+
+|enum of n      |0 until n - 1  |throws exception         |
+|members        |               |                         |
++---------------+---------------+-------------------------+
+|bool           |0 or 1         |results in 1             |
++---------------+---------------+-------------------------+
+|signed integers|higher bits    |currently silently       |
+|               |set to the     |signextends to a valid   |
+|               |sign bit       |value, i.e. all higher   |
+|               |               |bits are set to the sign |
+|               |               |bit; may throw an        |
+|               |               |exception in the future  |
++---------------+---------------+-------------------------+
+|unsigned       |higher bits    |currently silently masks |
+|integers       |zeroed         |to a valid value, i.e.   |
+|               |               |all higher bits are set  |
+|               |               |to zero; may throw an    |
+|               |               |exception in the future  |
++---------------+---------------+-------------------------+
